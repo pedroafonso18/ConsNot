@@ -20,11 +20,8 @@ type Env struct {
 	Db_storm     string
 }
 
-func LoadEnv() (Env, error) {
-	err := godotenv.Load()
-	if err != nil {
-		return Env{}, err
-	}
+func LoadEnv() Env {
+	godotenv.Load()
 	Acesso1 := os.Getenv("ACESSO_1")
 	Acesso2 := os.Getenv("ACESSO_2")
 	Acesso3 := os.Getenv("ACESSO_3")
@@ -49,6 +46,6 @@ func LoadEnv() (Env, error) {
 		Db_consultas: Db_consultas,
 		Db_search:    Db_search,
 		Db_storm:     Db_storm,
-	}, nil
+	}
 
 }

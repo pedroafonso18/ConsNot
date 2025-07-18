@@ -93,3 +93,29 @@ func IsPaused(client *sql.DB) (bool, error) {
 	}
 	return isActive, nil
 }
+
+func FetchCustomers(client *sql.DB) ([]string, error) {
+	var cpfs []string
+	campanha_ativa, err := FetchCurrentCampaign(client)
+	if err != nil {
+		return nil, err
+	}
+	query := "SELECT cpf FROM consultar WHERE consultado = false AND campanha = $1 LIMIT 10"
+	rows, err := client.Query(query, campanha_ativa)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var cpf string
+		if err := rows.Scan(&cpf); err != nil {
+			return nil, err
+		}
+		cpfs = append(cpfs, cpf)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return cpfs, nil
+}

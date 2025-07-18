@@ -77,42 +77,41 @@ func GetApiReturn(token, cpf string) (ResponseContent, error) {
 	}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
-		fmt.Printf("Error when Marshalling body: %v", err)
-		return ResponseContent{}, nil
+		return ResponseContent{}, err
 	}
 
 	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
 	if err != nil {
-		fmt.Printf("Error when creating request: %v", err)
-		return ResponseContent{}, nil
+		return ResponseContent{}, err
 	}
 	httpReq.Header.Set("accesstoken", token)
 	client := &http.Client{}
 	resp, err := client.Do(httpReq)
 	if err != nil {
-		fmt.Printf("HTTP request failed: %v", err)
 		return ResponseContent{}, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode > 226 || resp.StatusCode < 200 {
-		fmt.Printf("Request failed with status: %s", resp.Status)
 		return ResponseContent{}, fmt.Errorf("request failed with status: %s", resp.Status)
 	}
 
-	var responseContent ResponseContent
+	var apiResp ApiResponse
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("Error reading response body: %v\n", err)
 		return ResponseContent{}, err
 	}
 
-	err = json.Unmarshal(bodyBytes, &responseContent)
+	err = json.Unmarshal(bodyBytes, &apiResp)
 	if err != nil {
-		fmt.Printf("Error unmarshalling response: %v\nBody: %s\n", err, string(bodyBytes))
+		return ResponseContent{}, err
+	}
+
+	var responseContent ResponseContent
+	err = json.Unmarshal([]byte(apiResp.HtmlString), &responseContent)
+	if err != nil {
 		return ResponseContent{}, err
 	}
 
 	return responseContent, nil
-
 }
