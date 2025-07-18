@@ -87,3 +87,11 @@ type Objecao struct {
 	Resposta         string  `json:"resposta"`
 	RespostaCopiavel *string `json:"respostaCopiavel,omitempty"`
 }
+
+type AuthenticationResult struct {
+	AccessToken string `json:"AccessToken"`
+}
+
+type AccessTokenResp struct {
+	AuthRes AuthenticationResult `json:"AuthenticationResult"`
+}
