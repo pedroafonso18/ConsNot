@@ -10,7 +10,7 @@ func FetchConsultas(client, storm_client *sql.DB, cpf string) (Pessoa, error) {
 	cleaned_cpf := strings.ReplaceAll(strings.ReplaceAll(cpf, ".", ""), "-", "")
 	var pessoa Pessoa
 
-	query := "SELECT nome, numero, cpf FROM contatos WHERE cpf is not null AND (cpf = $1 OR cpf = $2)"
+	query := "SELECT nome, numero FROM contatos WHERE cpf is not null AND (cpf = $1 OR cpf = $2)"
 	fmt.Printf("Executing query: %s\n", query)
 	fmt.Printf("With parameters: %s and %s\n", cpf, cleaned_cpf)
 

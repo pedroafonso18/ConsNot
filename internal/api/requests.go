@@ -62,16 +62,17 @@ func GetAccessToken(access, password string) (AccessTokenResp, error) {
 
 }
 
-func GetApiReturn(token, cpf string) (ResponseContent, error) {
+func GetApiReturn(token, cpf, apikey string) (ResponseContent, error) {
 	cleaned_cpf := strings.ReplaceAll(strings.ReplaceAll(cpf, ".", ""), "-", "")
 	url := "https://consig.private.app.br/api/secao/simulador-safra-fgts"
 	body := map[string]interface{}{
 		"numCpf":           cleaned_cpf,
 		"bancoDestinoNovo": "9993-MB",
 		"autorizacao":      true,
+		"saldoTotal":       "",
 		"salarioBruto":     "",
 		"mesesTrabalhados": "",
-		"dtNascimentoAux":  false,
+		"dtNascimentoAux":  "false",
 		"numTelefone":      "",
 		"numeroDeParcelas": "10",
 	}
@@ -79,18 +80,25 @@ func GetApiReturn(token, cpf string) (ResponseContent, error) {
 	if err != nil {
 		return ResponseContent{}, err
 	}
+	fmt.Printf("[DEBUG] API request body: %s\n", string(jsonBody))
+	fmt.Printf("[DEBUG] Using access token: %s\n", token)
+	fmt.Printf("[DEBUG] Using CPF: %s\n", cpf)
 
 	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return ResponseContent{}, err
 	}
 	httpReq.Header.Set("accesstoken", token)
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("apikey", apikey)
 	client := &http.Client{}
 	resp, err := client.Do(httpReq)
 	if err != nil {
 		return ResponseContent{}, err
 	}
 	defer resp.Body.Close()
+
+	fmt.Printf("[DEBUG] API response status: %s\n", resp.Status)
 
 	if resp.StatusCode > 226 || resp.StatusCode < 200 {
 		return ResponseContent{}, fmt.Errorf("request failed with status: %s", resp.Status)
@@ -101,6 +109,8 @@ func GetApiReturn(token, cpf string) (ResponseContent, error) {
 	if err != nil {
 		return ResponseContent{}, err
 	}
+
+	fmt.Printf("[DEBUG] API response body: %s\n", string(bodyBytes))
 
 	err = json.Unmarshal(bodyBytes, &apiResp)
 	if err != nil {

@@ -18,6 +18,7 @@ type Env struct {
 	Db_consultas string
 	Db_search    string
 	Db_storm     string
+	ApiKey       string
 }
 
 func LoadEnv() Env {
@@ -33,6 +34,7 @@ func LoadEnv() Env {
 	Db_consultas := os.Getenv("DB_CONSULTAS")
 	Db_search := os.Getenv("DB_SEARCH")
 	Db_storm := os.Getenv("DB_STORM")
+	Apikey := os.Getenv("APIKEY")
 
 	return Env{
 		Acesso1:      Acesso1,
@@ -46,6 +48,7 @@ func LoadEnv() Env {
 		Db_consultas: Db_consultas,
 		Db_search:    Db_search,
 		Db_storm:     Db_storm,
+		ApiKey:       Apikey,
 	}
 
 }
