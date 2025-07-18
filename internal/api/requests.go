@@ -11,26 +11,22 @@ import (
 
 func GetAccessToken(access, password string) (AccessTokenResp, error) {
 	url := "https://cognito-idp.us-east-2.amazonaws.com"
-	body := map[string]interface{}{
-		"AuthParameters": map[string]string{
-			"USERNAME": access,
-			"PASSWORD": password,
-		},
-		"AuthFlow": "USER_PASSWORD_AUTH",
-		"ClientId": "63ccaojkma1th1pucikhn1n19k",
-	}
-	jsonBody, err := json.Marshal(body)
-	if err != nil {
-		fmt.Printf("Error when trying to marshal the JSON: %v\n", err)
-		return AccessTokenResp{}, err
-	}
-	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
+	jsonBody := fmt.Sprintf(`{"ClientId":"%s","AuthFlow":"USER_PASSWORD_AUTH","AuthParameters":{"USERNAME":"%s","PASSWORD":"%s"}}`,
+		"63ccaojkma1th1pucikhn1n19k", access, password)
+	fmt.Printf("[DEBUG] Cognito request body: %s\n", jsonBody)
+	fmt.Printf("[DEBUG] Username: %s\n", access)
+	fmt.Printf("[DEBUG] Password: %s\n", password)
+
+	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(jsonBody)))
 	if err != nil {
 		fmt.Printf("Failed to create HTTP request: %v\n", err)
 		return AccessTokenResp{}, err
 	}
 	httpReq.Header.Set("Content-Type", "application/x-amz-json-1.1")
 	httpReq.Header.Set("X-Amz-Target", "AWSCognitoIdentityProviderService.InitiateAuth")
+	for k, v := range httpReq.Header {
+		fmt.Printf("[DEBUG] Header: %s: %s\n", k, v)
+	}
 
 	client := &http.Client{}
 	resp, err := client.Do(httpReq)

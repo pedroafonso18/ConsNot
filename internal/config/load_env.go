@@ -1,9 +1,10 @@
 package config
 
 import (
+	"bufio"
+	"fmt"
 	"os"
-
-	"github.com/joho/godotenv"
+	"strings"
 )
 
 type Env struct {
@@ -22,19 +23,50 @@ type Env struct {
 }
 
 func LoadEnv() Env {
-	godotenv.Load()
-	Acesso1 := os.Getenv("ACESSO_1")
-	Acesso2 := os.Getenv("ACESSO_2")
-	Acesso3 := os.Getenv("ACESSO_3")
-	Acesso4 := os.Getenv("ACESSO_4")
-	Senha1 := os.Getenv("SENHA_1")
-	Senha2 := os.Getenv("SENHA_2")
-	Senha3 := os.Getenv("SENHA_3")
-	Senha4 := os.Getenv("SENHA_4")
-	Db_consultas := os.Getenv("DB_CONSULTAS")
-	Db_search := os.Getenv("DB_SEARCH")
-	Db_storm := os.Getenv("DB_STORM")
-	Apikey := os.Getenv("APIKEY")
+	file, err := os.Open(".env")
+	if err != nil {
+		fmt.Printf("Could not open .env file: %v", err.Error())
+	}
+	defer file.Close()
+
+	envVars := make(map[string]string)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		if pos := strings.Index(line, "="); pos != -1 {
+			key := strings.TrimSpace(line[:pos])
+			value := strings.TrimSpace(line[pos+1:])
+			envVars[key] = value
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("Error reading .env file: %v", err.Error())
+	}
+
+	getEnv := func(key string) string {
+		val, ok := envVars[key]
+		if !ok || val == "" {
+			fmt.Printf("Missing required environment variable: %s", key)
+		}
+		return val
+	}
+
+	Acesso1 := getEnv("ACESSO_1")
+	Acesso2 := getEnv("ACESSO_2")
+	Acesso3 := getEnv("ACESSO_3")
+	Acesso4 := getEnv("ACESSO_4")
+	Senha1 := getEnv("SENHA_1")
+	Senha2 := getEnv("SENHA_2")
+	Senha3 := getEnv("SENHA_3")
+	Senha4 := getEnv("SENHA_4")
+	Db_consultas := getEnv("DB_CONSULTAS")
+	Db_search := getEnv("DB_SEARCH")
+	Db_storm := getEnv("DB_STORM")
+	Apikey := getEnv("APIKEY")
 
 	return Env{
 		Acesso1:      Acesso1,
@@ -50,5 +82,4 @@ func LoadEnv() Env {
 		Db_storm:     Db_storm,
 		ApiKey:       Apikey,
 	}
-
 }
