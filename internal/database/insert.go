@@ -24,3 +24,15 @@ func InsertConsultaLog(client *sql.DB, cpf, saldo, aviso, login, nome, numero st
 	}
 	return nil
 }
+
+func UpdateConsultado(client *sql.DB, cpf string) error {
+	campanha, err := FetchCurrentCampaign(client)
+	if err != nil {
+		return err
+	}
+	_, err = client.Exec("UPDATE consultar SET consultado = true WHERE cpf = $1 AND campanha = $2", cpf, campanha)
+	if err != nil {
+		return err
+	}
+	return nil
+}
