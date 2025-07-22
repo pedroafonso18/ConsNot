@@ -2,6 +2,8 @@ package database
 
 import (
 	"database/sql"
+
+	_ "github.com/lib/pq"
 )
 
 func InsertConsultaLog(client *sql.DB, cpf, saldo, aviso, login, nome, numero string, erro bool) error {

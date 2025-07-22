@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+
+	_ "github.com/lib/pq"
 )
 
 func FetchConsultas(client, storm_client *sql.DB, cpf string) (Pessoa, error) {
